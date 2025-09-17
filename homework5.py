@@ -82,8 +82,8 @@ for ch in (text + " "):   # додаємо пробіл
             odd_count += 1
         number = ""   # обнуляємо
 
-print("Парних чисел:", even_count)
-print("Непарних чисел:", odd_count)
+print("Парних чисел: ", even_count)
+print("Непарних чисел: ", odd_count)
 
 
 
