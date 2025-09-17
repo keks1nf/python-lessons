@@ -62,7 +62,7 @@
 #     else:
 #         odd_count += 1
 #
-# print(f"Even numbers: {even_count}") 1
+# print(f"Even numbers: {even_count}")
 # print(f"Odd numbers: {odd_count}")
 
 text = input("Введіть числа через пробіл: ")
@@ -71,7 +71,7 @@ even_count = 0
 odd_count = 0
 
 number = ""
-for ch in text + " ":   # додаємо пробіл
+for ch in (text + " "):   # додаємо пробіл
     if ch != " ":
         number += ch
     elif number != "":
