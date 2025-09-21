@@ -42,7 +42,39 @@ n = int(input("Введіть n: "))
 
 for i in range(n, 0, -1):   # від n до 1 reversed
     print(i, "#" * i)
-    
+
 # 3
 for number in reversed(range(1, n + 1)):
     print(number, '#' * number)
+
+
+# index = 0
+# numbers = input("Enter numbers separated by space: ")
+# number = ''
+#
+# even_count = 0
+# odd_count = 0
+#
+# while index < len(numbers):
+#     if numbers[index] != ' ':
+#         number += numbers[index]
+#     else:
+#         if number != '':
+#             num = int(number)
+#             if num % 2 == 0:
+#                 even_count += 1
+#             else:
+#                 odd_count += 1
+#         number = ''
+#     index += 1
+#
+# #останнє число
+# if number != '':
+#     num = int(number)
+#     if num % 2 == 0:
+#         even_count += 1
+#     else:
+#         odd_count += 1
+#
+# print(f"Even numbers: {even_count}")
+# print(f"Odd numbers: {odd_count}")
