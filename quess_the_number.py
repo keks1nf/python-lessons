@@ -2,7 +2,7 @@ import random
 import time
 
 
-computer_number = random.randint(1, 10) #випадкове число
+computer_number = random.randint(1, 100) #випадкове число
 start_time = time.time() # початковий час
 attempts = 0 # кількість спроб
 

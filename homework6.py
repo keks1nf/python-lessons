@@ -9,12 +9,12 @@ for numbers in range(1, count + 1):
 
 print(f'Результат:', {memory})
 #2
-text = 'cvfgbvklhilkfddfgfbgdsafdvtyutio'
+text = input('Введіть текст: ')
 
 count = 0
 
 for char in text:
-    if char in 'AaEeIiOoUu':
+    if char in 'AaEeIiOoUuАаОоЕеУуІіИиЯяЮюЄєЇї':
         count += 1
 
 if count > 0:
