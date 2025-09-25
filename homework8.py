@@ -1,46 +1,63 @@
 # #4
+import sys
+
 while True:
-        a = input('Введіть слово: ').strip().lower()
-        b = input('Введіть слово: ').strip().lower()
+        a = input('Введіть слово: ').strip()#.lower()
+        b = input('Введіть слово: ').strip()#.lower()
 
         ok = True
         for ch in b:
-            if b.count(ch) > a.count(ch):
+            if a.find(ch) == -1:
                 ok = False
                 break
 
         print("Yes" if ok else "No")
         break
-# #1
-text = input("Введіть текст: ")
 
-result = ""
-for ch in text:
-    if ch.isupper():
-        result += "*"
-    else:
-        result += ch
+sys.exit(0)
+# # #1
+# text = input("Введіть текст: ")
 
-print(result)
+# result = ""
+# for ch in text:
+#     if ch.isupper():
+#         result += "*"
+#     else:
+#         result += ch
+
+# print(result)
 #2
-lines = []  # ??????
-while True:
-    s = input()
-    if not s:
-        break
-    lines.append(s)
 
-for s in lines:
+
+# lines = []  # ??????
+# while True:
+#     s = input().strip()
+#     if not s:
+#         break
+#     lines.append(s)
+
+
+
+lines = [
+    1001,
+    100001001010,
+    1000001,
+]
+
+for digits in lines:
     max_zeros = 0
     count = 0
-    for ch in s:
+
+    for ch in str(digits):
         if ch == '0':
             count += 1
+            
             if count > max_zeros:
                 max_zeros = count
         else:
             count = 0
-    print(max_zeros)
+    print('max zeros', max_zeros)
+
 #3
 import string
 
