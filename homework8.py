@@ -2,8 +2,8 @@
 
 
 # while True:
-#         a = input('Введіть слово: ').strip()#.lower()
-#         b = input('Введіть слово: ').strip()#.lower()
+#         a = input('Введіть слово: ').strip().lower()
+#         b = input('Введіть слово: ').strip().lower()
 #
 #         ok = True
 #         for ch in b:
@@ -15,78 +15,100 @@
 #         break
 
 
-a = input('Введіть слово: ')
-b = input('Введіть слово: ')
-
-for ch in b:  # перевіряємо кожну букву зі слова b
-    if a.count(ch) < b.count(ch):
-        print("Слово скласти не вийде!")
-        break
-else:
-    print('Слово можна скласти!')
+# a = input('Введіть слово: ')
+# b = input('Введіть слово: ')
+#
+# for ch in b:
+#     if a.count(ch) < b.count(ch):
+#         print("Слово скласти не вийде!")
+#         break
+# else:
+#     print('Слово можна скласти!')
 
 # #1
-text = input("Введіть текст: ")
+# text = input("Введіть текст: ")
+#
+# result = ""
+# for ch in text:
+#     if ch.isupper():
+#         result += "*"
+#     else:
+#         result += ch
+#
+# print(result)
+# # #2
+#
+# lines = [
+#     1001,
+#     100001001010,
+#     1000001,
+# ]
+#
+# for digits in lines:
+#     max_zeros = 0
+#     count = 0
+#
+#     for ch in str(digits):
+#         if ch == '0':
+#             count += 1
+#
+#             if count > max_zeros:
+#                 max_zeros = count
+#         else:
+#             count = 0
+#     print('max zeros', max_zeros)
 
-result = ""
-for ch in text:
-    if ch.isupper():
-        result += "*"
-    else:
-        result += ch
-
-print(result)
-#2
-
-
-lines = []  # ??????
-while True:
-    s = input().strip()
-    if not s:
-        break
-    lines.append(s)
-
-
-
-lines = [
-    1001,
-    100001001010,
-    1000001,
-]
-
-for digits in lines:
-    max_zeros = 0
-    count = 0
-
-    for ch in str(digits):
-        if ch == '0':
-            count += 1
-
-            if count > max_zeros:
-                max_zeros = count
-        else:
-            count = 0
-    print('max zeros', max_zeros)
-
-#3
+# #3
 import string
 
-text = input("Введіть текст: ")
+# text = input("Введіть текст: ")
 
 # a. Символ, що трапляється найбільшу кількість разів
-#???
 
-# b. Кількість знаків пунктуації
-punct_count = sum(1 for ch in text if ch in string.punctuation)
-print("b. Кількість знаків пунктуації:", punct_count)
-
-# c. Літери алфавіту, що не були знайдені у тексті
-#???
-
-# d. Кількість унікальних символів (ті, що зустрічаються лише один раз)
-unique_count = sum(1 for ch in text if text.count(ch) == 1)
-print("d. Кількість унікальних символів:", unique_count)
-#5
+# if text:
+#     most_common_char = max(text, key=text.count)
+#     print("Символ, що трапляється найбільшу кількість разів:", most_common_char)
+# else:
+#     print("Рядок порожній!")
+# text = "aa bbb cccc"
+# result = []
+# max_digits = 0
+# while len(text) > 0:
+#
+#     for char in text:
+#         if text.count(char) >= max_digits and char not in result:
+#             result.append(char)
+#             text = text.replace(char, "")
+#         else:
+#             text = text.replace(char, "")
+#
+#         print(text)
+#
+# print(result)
+#
+#
+#
+# # b. Кількість знаків пунктуації
+# punct_count = sum(1 for ch in text if ch in string.punctuation)
+# print("b. Кількість знаків пунктуації:", punct_count)
+#
+# # c. Літери алфавіту, що не були знайдені у тексті
+# ukrainian_alphabet = "абвгґдежзийіїклмнопрстуфхцчшщьюя"
+#
+# text = input("Введіть рядок: ").lower()
+#
+# missing_letters = ""
+#
+# for letter in ukrainian_alphabet:
+#     if letter not in text:
+#         missing_letters += letter
+#
+# print("Літери, що не зустрілися у тексті:", missing_letters)
+#
+# # d. Кількість унікальних символів (ті, що зустрічаються лише один раз)
+# unique_count = sum(1 for ch in text if text.count(ch) == 1)
+# print("d. Кількість унікальних символів:", unique_count)
+# #5
 text = input("Введіть рядок: ")
 
 if not text:
@@ -105,6 +127,6 @@ else:
     result += text[-1] + str(count)
 
     print("Закодований рядок:", result)
-
+#
 
 
