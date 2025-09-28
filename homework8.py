@@ -1,40 +1,50 @@
 # #4
-import sys
 
-while True:
-        a = input('Введіть слово: ').strip()#.lower()
-        b = input('Введіть слово: ').strip()#.lower()
 
-        ok = True
-        for ch in b:
-            if a.find(ch) == -1:
-                ok = False
-                break
+# while True:
+#         a = input('Введіть слово: ').strip()#.lower()
+#         b = input('Введіть слово: ').strip()#.lower()
+#
+#         ok = True
+#         for ch in b:
+#             if a.find(ch) == -1:
+#                 ok = False
+#                 break
+#
+#         print("Yes" if ok else "No")
+#         break
 
-        print("Yes" if ok else "No")
+
+a = input('Введіть слово: ')
+b = input('Введіть слово: ')
+
+for ch in b:  # перевіряємо кожну букву зі слова b
+    if a.count(ch) < b.count(ch):
+        print("Слово скласти не вийде!")
         break
+else:
+    print('Слово можна скласти!')
 
-sys.exit(0)
-# # #1
-# text = input("Введіть текст: ")
+# #1
+text = input("Введіть текст: ")
 
-# result = ""
-# for ch in text:
-#     if ch.isupper():
-#         result += "*"
-#     else:
-#         result += ch
+result = ""
+for ch in text:
+    if ch.isupper():
+        result += "*"
+    else:
+        result += ch
 
-# print(result)
+print(result)
 #2
 
 
-# lines = []  # ??????
-# while True:
-#     s = input().strip()
-#     if not s:
-#         break
-#     lines.append(s)
+lines = []  # ??????
+while True:
+    s = input().strip()
+    if not s:
+        break
+    lines.append(s)
 
 
 
@@ -51,7 +61,7 @@ for digits in lines:
     for ch in str(digits):
         if ch == '0':
             count += 1
-            
+
             if count > max_zeros:
                 max_zeros = count
         else:

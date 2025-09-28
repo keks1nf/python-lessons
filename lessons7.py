@@ -58,3 +58,5 @@ import random
 password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(15))
 print(f'Ваш пароль: {password}')
 
+random.random()
+print (int(random.random()*100))
