@@ -70,7 +70,27 @@ import string
 #     print("Символ, що трапляється найбільшу кількість разів:", most_common_char)
 # else:
 #     print("Рядок порожній!")
-# text = "aa bbb cccc"
+text = "aaaaaa bbb cccc dddd gggggg "
+
+
+result = []
+max_digits = 0
+while len(text):
+    letter = ''
+    for ch in text:
+        if text.count(ch) >= max_digits:
+            letter = ch
+            max_digits = text.count(ch)
+        else:
+            text = text.replace(ch, '')
+    if letter:
+        text = text.replace(letter, '')
+        result.append(letter)    
+
+print(result)
+
+
+
 # result = []
 # max_digits = 0
 # while len(text) > 0:
