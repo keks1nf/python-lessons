@@ -61,7 +61,7 @@
 # #3
 import string
 
-# text = input("Введіть текст: ")
+
 
 # a. Символ, що трапляється найбільшу кількість разів
 
@@ -70,7 +70,8 @@ import string
 #     print("Символ, що трапляється найбільшу кількість разів:", most_common_char)
 # else:
 #     print("Рядок порожній!")
-text = "aaaaaa bbb cccc dddd gggggg "
+text = input("Введіть текст: ")
+# text = "aaaaaa bbb cccc dddd gggggg "
 
 
 result = []
@@ -85,10 +86,9 @@ while len(text):
             text = text.replace(ch, '')
     if letter:
         text = text.replace(letter, '')
-        result.append(letter)    
+        result.append(letter)
 
-print(result)
-
+print('Символи, що трапляється найбільшу кількість разів: ', result)
 
 
 # result = []
