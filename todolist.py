@@ -4,13 +4,14 @@ import time
 
 
 def show_help() -> None:
-    print('\nКоманди')
-    print("add Додати завдання")
-    print("rm <id> Видалити завдання")
+    print('Програма для управління задачами. Принцип роботи - задачі зберігаються в файл data.json що створюється поряд з цим файлом')
+    print('Для роботи можна використовувати команди:')
+    print("add           Додати завдання")
+    print("rm <id>       Видалити завдання")
     print("complete <id> Позначити виконаним")
-    print("revert <id> Відмінити виконання")
-    print("edit <id> Редагувати завдання")
-    print("ls Показати всі завдання")
+    print("revert <id>   Відмінити виконання")
+    print("edit <id>     Редагувати завдання")
+    print("ls            Показати всі завдання")
     print("ctrl+c Вийти")
 
 def write_file(tasks: list) -> None:
@@ -26,18 +27,18 @@ def read_file() -> list:
 
 def show_tasks() -> None:
     tasks = read_file()
-    print(f"ID\tDescription\tStatus")
+    print(f"Ідентифікатор\tЗавдання\tСтатус")
 
     if (tasks and len(tasks)):
         for task in tasks:
             print(f"{task['id']}\t{task['text']}\t{task['status']}")
     else:
-        print('Використовуйте "add" щоб додати нову задачу')
+        print('Задач немає. Використовуйте "add" щоб додати нову задачу')
 
 def add_task() -> None :
     tasks = read_file();
 
-    text = input('Опис таски: ')
+    text = input('Що потрібно зробити?')
     task = {
         'text': text,
         'id': str(int(time.time())),
@@ -47,7 +48,7 @@ def add_task() -> None :
     tasks.append(task)
     write_file(tasks);
 
-    print(f"Таска створена, ID: {task['id']}")
+    print(f"Задача створена, ID: {task['id']}")
 
 def rm_task(id: str):
     tasks = read_file()
@@ -60,6 +61,7 @@ def rm_task(id: str):
         new_task_list.append(task)
     
     write_file(new_task_list)
+    print(f"Задача створена, ID: {task['id']}")
 
 def get_task_by_id(id: str):
     tasks = read_file()
@@ -95,15 +97,17 @@ def update_task_status(id: str, status: str) -> None:
 
 def set_complete_task_status(id: str) -> None: 
     update_task_status(id, 'Виконана')
+    print(f'Задача ID: {id} виконана!')
 
 def set_new_task_status(id: str) -> None: 
     update_task_status(id, 'Нова')
+    print(f'Задача ID: {id} має статус Нова!')
 
 def edit_task(id: str): 
     task = get_task_by_id(id)
     
     if task:
-        text = input('Новий опис: ')
+        text = input('Що потрібно зробити? ')
         task['text'] = text
 
         update_task(task)
