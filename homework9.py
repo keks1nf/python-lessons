@@ -81,3 +81,11 @@ else:
         result.append(list1[i] + list2[i])
     print(f"Результат:", result)
 
+# res = [sum(el) for in zip(list1, list2))]
+
+
+#res = []
+
+#for index, el in enumerate(a):
+#    res.append(el + b[index])
+# print(res)

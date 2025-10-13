@@ -24,13 +24,13 @@ for word in text:
         unique_words.append(word)
 print(len(unique_words))
 # #3
-# nums = list(map(int, input('Введіть числа через пробіл: ').split()))
-#
-# squares = []
-# for x in nums:
-#     squares.append(x**2)
-#
-# print(*squares)
+nums = list(map(int, input('Введіть числа через пробіл: ').split()))
+
+squares = []
+for x in nums:
+    squares.append(x**2)
+
+print(*squares)
 #
 # # #4
 # nums = [3, 7, 2, 9, 12, 5]
