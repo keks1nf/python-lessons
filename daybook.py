@@ -20,13 +20,13 @@ def read_file() -> list:
 
 def add_entry():
     entries = read_file()
-    ID = str(int(time.time()))
+    id = str(int(time.time()))
     title = input("Введіть назву: ")
     text = input("Введіть текст: ")
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     entry = {
-        "ID": ID,
+        "id": id,
         "title": title,
         "text": text,
         "date": date,
@@ -37,9 +37,8 @@ def add_entry():
     write_file(entries)
     print("додано")
 
-def show_entries(entries: list | None = None) -> None:
-    if entries is None:
-        entries = read_file()
+def show_entries() -> None:
+    entries = read_file()
 
     if not entries:
         print("У щоденнику немає записів.")
@@ -49,41 +48,40 @@ def show_entries(entries: list | None = None) -> None:
 
     for i, entry in enumerate(entries, start=1):
         print(f"\n--- Запис {i} ---")
-        print(f"ID: {entry.get('ID', entry.get('id', 'Невідомо'))}")
+        print(f"id: {entry.get('id', entry.get('id', 'Невідомо'))}")
         print(f"Назва: {entry.get('title', 'Без назви')}")
         print(f"Дата: {entry.get('date', 'Невідомо')} ({entry.get('status', 'невідомо')})")
         print(f"Текст: {entry.get('text', '')}")
 
 
 
-def get_entry_by_id(ID: str):
+def get_entry_by_id(id: str):
     entries = read_file()
-    return next((e for e in entries if e.get('ID') == ID), None)
+    return next((e for e in entries if e.get('id') == id), None)
 
 
 def update_entry(entry_to_update: dict[str, str]) -> None:
     entries = read_file()
-    updated = [entry_to_update if e['ID'] == entry_to_update['ID'] else e for e in entries]
+    updated = [entry_to_update if e['id'] == entry_to_update['id'] else e for e in entries]
     write_file(updated)
 
 
-def update_entry_status(ID: str, status: str) -> None:
-    entry = get_entry_by_id(ID)
+def update_entry_status(id: str, status: str) -> None:
+    entry = get_entry_by_id(id)
     if entry:
         entry['status'] = status
         update_entry(entry)
-        print(f"ID {ID} → статус '{status}'")
+        print(f"id {id} → статус '{status}'")
     else:
-        print(f"ID {ID} не знайдено.")
+        print(f"id {id} не знайдено.")
 
 
-def edit_entry(ID: str | None = None):
-    if ID is None:
-        ID = input("Введіть ID запису: ")
+def edit_entry():
+    id = input("Введіть id запису: ")
 
-    entry = get_entry_by_id(ID)
+    entry = get_entry_by_id(id)
     if not entry:
-        print(f"ID {ID} не знайдено.")
+        print(f"id {id} не знайдено.")
         return
 
     text = input(f"Новий текст (поточний: {entry['text']}): ") or entry['text']
@@ -93,29 +91,26 @@ def edit_entry(ID: str | None = None):
     entry['status'] = "modified"
 
     update_entry(entry)
-    print(f"ID {ID} оновлено.")
+    print(f"id {id} оновлено.")
 
 
-def delete_entry(ID: str | None = None) -> None:
-
-    if not ID:
-        ID = input("Введіть ID для видалення: ").strip()
+def delete_entry() -> None:
+    id = input("Введіть id для видалення: ").strip()
 
     entries = read_file()
-
 
     if not entries:
         print("Щоденник порожній.")
         return
 
 
-    new_entries = [e for e in entries if e.get('ID') != ID]
+    new_entries = [e for e in entries if e.get('id') != id]
 
     if len(new_entries) != len(entries):
         write_file(new_entries)
-        print(f"Запис ID {ID} видалено.")
+        print(f"Запис id {id} видалено.")
     else:
-        print(f"Запис з ID {ID} не знайдено.")
+        print(f"Запис з id {id} не знайдено.")
 
 
 def main_menu():
