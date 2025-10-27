@@ -1,8 +1,13 @@
 import json
+import os
 import random
 from datetime import datetime
 
+def get_question_file_path():
+    return os.path.join("files", "questions.json")
 
+def get_result_file_path():
+    return os.path.join("files", "results.json")
 
 def load_json(filename: str) -> list:
     try:
@@ -17,9 +22,7 @@ def save_json(filename: str, data: list) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-
 def add_question():
-
     print("\n--- Додавання нового питання ---")
     question_text = input("Введіть питання: ").strip()
 
@@ -38,16 +41,17 @@ def add_question():
         "answer": correct
     }
 
-    questions = load_json("files\\questions.json")
+
+    questions = load_json(get_question_file_path())
     questions.append(new_question)
-    save_json("files\\questions.json", questions)
+    save_json(get_question_file_path(), questions)
 
     print("Питання успішно додано!\n")
 
 
 
 def run_quiz():
-    questions = load_json("files\\questions.json")
+    questions = load_json(get_question_file_path())
 
     if not questions:
         print("Немає питань для вікторини.")
@@ -81,21 +85,19 @@ def run_quiz():
 
 
 def save_result(username: str, score: int, total: int):
-
-    results = load_json("files\\results.json")
+    results = load_json(get_result_file_path())
     results.append({
         "user": username,
         "score": score,
         "total": total,
         "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     })
-    save_json("files\\results.json", results)
+    save_json(get_result_file_path(), results)
 
 
 
 def show_results():
-
-    results = load_json("files\\results.json")
+    results = load_json(get_result_file_path())
 
     if not results:
         print("Ще ніхто не проходив вікторину.")
