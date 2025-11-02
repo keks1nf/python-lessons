@@ -93,7 +93,7 @@ def show_total_order_cost():
 
         cur.execute('''SELECT SUM(products.price * order_items.quantity)
                        FROM order_items 
-                       JOIN products ON products.id = order_items.product_id
+                       INNER JOIN products ON products.id = order_items.product_id
                        WHERE order_id = ?''', (order_id,))
 
         total = cur.fetchone()[0]
@@ -107,9 +107,9 @@ def top_customers():
         cur.execute('''SELECT customers.name,
                               SUM(products.price * order_items.quantity) AS total
                        FROM customers
-                       JOIN orders ON customers.id = orders.customer_id
-                       JOIN order_items ON orders.id = order_items.order_id
-                       JOIN products ON order_items.product_id = products.id
+                       INNER JOIN orders ON customers.id = orders.customer_id
+                       INNER JOIN order_items ON orders.id = order_items.order_id
+                       INNER JOIN products ON order_items.product_id = products.id
                        GROUP BY customers.id
                        ORDER BY total DESC
                        LIMIT 5''')
@@ -126,7 +126,7 @@ def category_stats():
 
         cur.execute('''SELECT category, SUM(price * quantity) AS revenue
                        FROM products
-                       JOIN order_items ON products.id = order_items.product_id
+                       INNER JOIN order_items ON products.id = order_items.product_id
                        GROUP BY category
                        ORDER BY revenue DESC''')
 
@@ -136,16 +136,15 @@ def category_stats():
             print(f"{category}: {revenue} грн")
 
 
-# ----------- ІНТЕРФЕЙС ВИКЛИКУ ------------ #
 def menu():
     print("\n Меню:")
-    print("1 → Додати покупця")
-    print("2 → Додати товар")
-    print("3 → Створити замовлення")
-    print("4 → Порахувати вартість замовлення")
-    print("5 → Топ клієнтів")
-    print("6 → Статистика по категоріях")
-    print("0 → Вихід")
+    print("1 Додати покупця")
+    print("2 Додати товар")
+    print("3 Створити замовлення")
+    print("4 Порахувати вартість замовлення")
+    print("5 Топ клієнтів")
+    print("6 Статистика по категоріях")
+    print("0 Вихід")
 
 
 def main():
