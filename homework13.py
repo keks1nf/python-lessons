@@ -19,7 +19,7 @@ class StudentGroup:
     def add_student(self, student: Student):
         self.students.append(student)
 
-    def best_student(self) -> None:
+    def best_student(self) -> Student | None:
         if not self.students:
             return None
         return max(self.students, key=lambda s: s.average_grade())
@@ -49,12 +49,12 @@ for student in group:
 
 best = group.best_student()
 if best:
-    print(f"\n Найуспішніший студент: {best.name} (середній бал: {best.average_grade():.2f})")
+    print(f"\nНайуспішніший студент: {best.name} (середній бал: {best.average_grade():.2f})")
 
 
 #3
 class BankAccount:
-    def __init__(self, account, balance):
+    def __init__(self, account: str, balance: float):
         self.account = account
         self.balance = balance
 

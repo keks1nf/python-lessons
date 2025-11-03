@@ -1,23 +1,23 @@
 #1
 class Product:
-    def __init__(self, name, price):
+    def __init__(self, name: str, price: float):
         self.name = name
         self.price = price
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}: {self.price} грн"
 
 
 class Shop:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
-        self.products = []
+        self.products: list[Product] = []
 
-    def add_product (self, product):
+    def add_product (self, product: Product) -> None:
         self.products.append(product)
         print(f'Продукт {product.name} додано до магазину {self.name}')
 
-    def show_products(self):
+    def show_products(self) -> None:
         if not self.products:
             print("Немає продуктів")
         else:
@@ -25,13 +25,13 @@ class Shop:
             for product in self.products:
                 print(f"{product.name}: {product.price} грн.")
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         for p in self.products:
             if p.name.lower() == item.lower():
                 return True
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Магазин {self.name} - кількість товарів {len(self.products)}"
 
 
@@ -44,23 +44,22 @@ shop.add_product(Product("Яйця", 50))
 
 shop.show_products()
 
-print('Хліб' in shop)
-print('Масло' in shop)
-
-print(shop)
+print("print 'Хліб' in shop: ", 'Хліб' in shop)
+print("print 'Масло' in shop: ", 'Масло' in shop)
+print("print shop: ", shop)
 
 #2
 class Human:
-    def __init__(self, name, age):
+    def __init__(self, name: str, age: int):
         self.name = name
         self.age = age
 
-    def hi(self, age):
+    def hi(self):
         print(f'Привіт! Мене звати {self.name}, мені {self.age} років')
 
 
 class Auto:
-    def __init__(self, name, max_passenger):
+    def __init__(self, name: str, max_passenger: int):
         self.name = name
         self.max_passenger = max_passenger
         self.passengers = []
@@ -68,25 +67,25 @@ class Auto:
     def __str__(self):
         return f'Авто {self.name} - кількість пасажирів {self.max_passenger}'
 
-    def add(self, human):
+    def add(self, human: Human) -> None:
         if len(self.passengers) < self.max_passenger:
             self.passengers.append(human)
             print(f'Пасажир {human.name} сів у машину {self.name}')
         else:
             print(f'У машині {self.name} немає вільних місць')
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.passengers)
 
-    def show_passengers(self):
+    def show_passengers(self) -> None:
         if not self.passengers:
             print('Немає пасажирів')
         else:
              print(f'Пасажири в {self.name}')
              for human in self.passengers:
-                 human.hi(self)
+                 human.hi()
 
-def __str__(self):
+def __str__(self) -> str:
     return f'Машина {self.name} | Пасажирів: {len(self.passengers)}/{self.max_passengers}'
 
 a1 = Auto("Audi", 4)
@@ -105,10 +104,3 @@ print(a1)
 print(f"Кількість пасажирів: {len(a1)}")
 
 a1.show_passengers()
-
-
-
-
-
-
-
