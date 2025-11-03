@@ -3,8 +3,6 @@ from datetime import datetime
 
 DB = "shop.db"
 
-
-
 def init_db():
     with sqlite3.connect(DB) as conn:
         cur = conn.cursor()
@@ -37,7 +35,6 @@ def init_db():
         conn.commit()
 
 
-
 def add_customer():
     name = input("Імʼя покупця: ")
     email = input("Email: ")
@@ -46,24 +43,111 @@ def add_customer():
         cur = conn.cursor()
         cur.execute("INSERT INTO customers(name, email) VALUES(?,?)", (name, email))
         conn.commit()
-        print(" Покупця додано!")
+        customer_id = cur.lastrowid
+        
+        print(f"Покупця додано! ID: ${customer_id}")
 
+def add_product_price():
+    try:
+        price = float(input("Ціна: "))
+    except ValueError:
+        print("Некоректна ціна! Введіть корректну ціну")
+        price = add_product_price()
+    return price
 
 def add_product():
     name = input("Назва товару: ")
     category = input("Категорія: ")
-    price = float(input("Ціна: "))
+    price = add_product_price()
 
     with sqlite3.connect(DB) as conn:
         cur = conn.cursor()
         cur.execute("INSERT INTO products(name, category, price) VALUES(?,?,?)",
                     (name, category, price))
         conn.commit()
-        print(" Товар додано!")
+        print("Товар додано!")
 
+def get_customer_by_id(customer_id):
+    with sqlite3.connect(DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers WHERE id = ?", (customer_id,))
+        row = cur.fetchone()
+       
+        return row
+
+def get_product_by_id(product_id):
+    with sqlite3.connect(DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products WHERE id = ?", (product_id,))
+        row = cur.fetchone()
+
+        return row
+
+def show_all_customers():
+    with sqlite3.connect(DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers")
+        rows = cur.fetchall()
+        print("\nВсі покупці:")
+        for row in rows:
+            print(f"ID: {row[0]}. Name: {row[1]}, Email: {row[2]}")
+
+def show_all_products():
+    with sqlite3.connect(DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM products")
+        rows = cur.fetchall()
+        print("\nВсі товари:")
+        for row in rows:
+            print(f"ID: {row[0]}. Name: {row[1]}, Category: {row[2]}, Price: {row[3]} грн")
+
+def add_order_quantity():
+    try:
+        quantity = int(input("Кількість: "))
+    except ValueError:
+        print("Некоректна кількість! Введіть корректну кількість")
+        quantity = add_order_quantity()
+    
+    return quantity
+
+def add_order_customer_id():
+    try:
+        customer_id = int(input("ID покупця: "))
+
+        customer = get_customer_by_id(customer_id)
+        if customer:
+            return customer_id
+        else:
+            print("Покупця не знайдено! Введіть корректний ID покупця")
+            return add_order_customer_id()
+    
+    except ValueError:
+        print("Некоректний ID покупця! Введіть корректний ID покупця")
+        customer_id = add_order_customer_id()
+    
+    return customer_id
+
+
+def add_order_product_id():
+    try:
+        product_id = input("ID товару (або \"stop\"): ")
+        
+        if str(product_id).lower() == "stop":
+            return None
+        
+        product = get_product_by_id(int(product_id))
+        
+        if product:
+            return product_id
+        else:
+            print("Товар не знайдено! Введіть корректний ID товару")
+            return add_order_product_id()
+    except ValueError:
+        print("Некоректний ID товару! Введіть корректний ID товару")
+        return add_order_product_id()
 
 def create_order():
-    customer_id = int(input("ID покупця: "))
+    customer_id = add_order_customer_id()
 
     with sqlite3.connect(DB) as conn:
         cur = conn.cursor()
@@ -73,16 +157,29 @@ def create_order():
         print(f"Замовлення створене! ID: {order_id}")
 
         while True:
-            product_id = input("ID товару (або \"stop\"): ")
-            if product_id.lower() == "stop":
+            product_id = add_order_product_id()
+
+            if not product_id:
                 break
-            quantity = int(input("Кількість: "))
+            
+            quantity = add_order_quantity()
 
             cur.execute("INSERT INTO order_items(order_id, product_id, quantity) VALUES(?,?,?)",
                         (order_id, int(product_id), quantity))
 
         conn.commit()
-        print(" Замовлення сформовано!")
+        print("Замовлення сформовано!")
+
+
+def show_all_orders():
+    with sqlite3.connect(DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM orders")
+        rows = cur.fetchall()
+        print("\nВсі замовлення:")
+        
+        for row in rows:
+            print(f"ID: {row[0]}, Customer ID: {row[1]}, Order Date: {row[2]}")
 
 
 def show_total_order_cost():
@@ -97,7 +194,7 @@ def show_total_order_cost():
                        WHERE order_id = ?''', (order_id,))
 
         total = cur.fetchone()[0]
-        print(f" Загальна сума замовлення: {total if total else 0} грн")
+        print(f"Загальна сума замовлення: {total if total else 0} грн")
 
 
 def top_customers():
@@ -115,7 +212,7 @@ def top_customers():
                        LIMIT 5''')
 
         rows = cur.fetchall()
-        print("\n Топ клієнти:")
+        print("\nТоп клієнти:")
         for name, total in rows:
             print(f"{name}: {total} грн")
 
@@ -137,13 +234,16 @@ def category_stats():
 
 
 def menu():
-    print("\n Меню:")
+    print("\nМеню:")
     print("1 Додати покупця")
     print("2 Додати товар")
     print("3 Створити замовлення")
     print("4 Порахувати вартість замовлення")
     print("5 Топ клієнтів")
     print("6 Статистика по категоріях")
+    print("7 Показати всіх покупців")
+    print("8 Показати всі товари")
+    print("9 Показати всі замовлення")
     print("0 Вихід")
 
 
@@ -160,6 +260,9 @@ def main():
         elif choice == "4": show_total_order_cost()
         elif choice == "5": top_customers()
         elif choice == "6": category_stats()
+        elif choice == "7": show_all_customers()
+        elif choice == "8": show_all_products()
+        elif choice == "9": show_all_orders()
         elif choice == "0":
             print("Вихід із програми")
             break
