@@ -49,7 +49,7 @@ print("print 'Масло' in shop: ", 'Масло' in shop)
 print("print shop: ", shop)
 
 #2
-class Passenger:
+class Human:
     def __init__(self, name: str, age: int):
         self.name = name
         self.age = age
@@ -67,7 +67,7 @@ class Auto:
     def __str__(self):
         return f'Авто {self.name} - кількість пасажирів {self.max_passenger}'
 
-    def add(self, human: Passenger) -> None:
+    def add(self, human: Human) -> None:
         if len(self.passengers) < self.max_passenger:
             self.passengers.append(human)
             print(f'Пасажир {human.name} сів у машину {self.name}')
@@ -89,11 +89,11 @@ def __str__(self) -> str:
     return f'Машина {self.name} | Пасажирів: {len(self.passengers)}/{self.max_passengers}'
 
 a1 = Auto("Audi", 4)
-h1 = Passenger('Марія', 20)
-h2 = Passenger("Петро", 20)
-h3 = Passenger('Віктор', 20)
-h4 = Passenger('ольга',25)
-h5 = Passenger('Станіслав', 25)
+h1 = Human('Марія', 20)
+h2 = Human("Петро", 20)
+h3 = Human('Віктор', 20)
+h4 = Human('ольга',25)
+h5 = Human('Станіслав', 25)
 a1.add(h1)
 a1.add(h2)
 a1.add(h3)
