@@ -13,6 +13,7 @@ from typing import List, Dict, Optional, Protocol
 
 class Serializable(Protocol):
     """Інтерфейс для серіалізації"""
+    @abstractmethod
     def to_dict(self) -> dict:
         ...
 
@@ -463,90 +464,6 @@ class UserFactory:
             return Admin(user_id, name, email)
         else:
             raise ValueError(f"Невідома роль: {role}")
-
-# ============================================================================
-# DATABASE MANAGER - Робота з SQLite
-# ============================================================================
-
-class DatabaseManager:
-    """Менеджер бази даних (Single Responsibility)"""
-    def __init__(self, db_path: str = "course_manager.db"):
-        self.db_path = db_path
-        self.connection = None
-
-    def connect(self):
-        """Підключення до БД"""
-        self.connection = sqlite3.connect(self.db_path)
-        self.connection.row_factory = sqlite3.Row
-        return self.connection
-
-    def close(self):
-        """Закриття з'єднання"""
-        if self.connection:
-            self.connection.close()
-
-    def create_tables(self):
-        """Створення таблиць"""
-        cursor = self.connection.cursor()
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS users (
-                user_id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                role TEXT NOT NULL,
-                extra_data TEXT
-            )
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS courses (
-                course_id TEXT PRIMARY KEY,
-                title TEXT NOT NULL,
-                description TEXT,
-                instructor_id TEXT,
-                FOREIGN KEY (instructor_id) REFERENCES users(user_id)
-            )
-        ''')
-
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS enrollments (
-                enrollment_id TEXT PRIMARY KEY,
-                student_id TEXT NOT NULL,
-                course_id TEXT NOT NULL,
-                enrollment_date TEXT,
-                is_active INTEGER,
-                FOREIGN KEY (student_id) REFERENCES users(user_id),
-                FOREIGN KEY (course_id) REFERENCES courses(course_id)
-            )
-        ''')
-
-        self.connection.commit()
-        print("✅ Таблиці створено")
-
-    def save_user(self, user: User):
-        """Збереження користувача"""
-        cursor = self.connection.cursor()
-        extra_data = json.dumps(user.to_dict())
-
-        cursor.execute('''
-            INSERT OR REPLACE INTO users (user_id, name, email, role, extra_data)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (user.user_id, user.name, user.email, user.get_role(), extra_data))
-
-        self.connection.commit()
-
-    def save_course(self, course: Course):
-        """Збереження курсу"""
-        cursor = self.connection.cursor()
-        instructor_id = course.instructor.user_id if course.instructor else None
-
-        cursor.execute('''
-            INSERT OR REPLACE INTO courses (course_id, title, description, instructor_id)
-            VALUES (?, ?, ?, ?)
-        ''', (course.course_id, course.title, course.description, instructor_id))
-
-        self.connection.commit()
 
 
 # ============================================================================
