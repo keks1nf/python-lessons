@@ -17,13 +17,6 @@ class Serializable(Protocol):
         ...
 
 
-class Notifiable(ABC):
-    """Інтерфейс для сповіщень"""
-    @abstractmethod
-    def notify(self, message: str):
-        pass
-
-
 class Gradable(ABC):
     """Інтерфейс для об'єктів з оцінками"""
     @abstractmethod
@@ -35,7 +28,7 @@ class Gradable(ABC):
 # БАЗОВІ КЛАСИ (з покращеннями)
 # ============================================================================
 
-class User(ABC, Notifiable):
+class User(ABC):
     """Абстрактний базовий клас користувача"""
     def __init__(self, user_id, name, email):
         self.user_id = user_id
@@ -471,54 +464,6 @@ class UserFactory:
         else:
             raise ValueError(f"Невідома роль: {role}")
 
-
-# ============================================================================
-# ПАТЕРН OBSERVER - Система сповіщень
-# ============================================================================
-
-class Observer(ABC):
-    """Абстрактний спостерігач"""
-    @abstractmethod
-    def update(self, event: str, data: dict):
-        pass
-
-
-class EmailNotifier(Observer):
-    """Сповіщення через email (симуляція)"""
-    def update(self, event: str, data: dict):
-        print(f"📧 EMAIL: {event} - {data}")
-
-
-class LogObserver(Observer):
-    """Логування подій"""
-    def __init__(self):
-        self.logs = []
-
-    def update(self, event: str, data: dict):
-        log_entry = f"[{datetime.now()}] {event}: {data}"
-        self.logs.append(log_entry)
-        print(f"📝 LOG: {event}")
-
-    def get_logs(self):
-        return self.logs
-
-
-class Subject:
-    """Суб'єкт спостереження"""
-    def __init__(self):
-        self._observers: List[Observer] = []
-
-    def attach(self, observer: Observer):
-        self._observers.append(observer)
-
-    def detach(self, observer: Observer):
-        self._observers.remove(observer)
-
-    def notify(self, event: str, data: dict):
-        for observer in self._observers:
-            observer.update(event, data)
-
-
 # ============================================================================
 # DATABASE MANAGER - Робота з SQLite
 # ============================================================================
@@ -615,18 +560,10 @@ class CourseManager:
         self.courses: Dict[str, Course] = {}
         self.enrollments: Dict[str, Enrollment] = {}
         self.schedule_events: List[ScheduleEvent] = []
-        self.subject = Subject()
-
-        # Додаємо спостерігачів
-        self.email_notifier = EmailNotifier()
-        self.log_observer = LogObserver()
-        self.subject.attach(self.email_notifier)
-        self.subject.attach(self.log_observer)
 
     # ---- Користувачі ----
     def add_user(self, user: User):
         self.users[user.user_id] = user
-        self.subject.notify('user_added', {'user_id': user.user_id, 'name': user.name})
         print(f"✅ Користувач доданий: {user}")
 
     def get_user(self, user_id: str) -> Optional[User]:
@@ -641,7 +578,6 @@ class CourseManager:
     # ---- Курси ----
     def add_course(self, course: Course):
         self.courses[course.course_id] = course
-        self.subject.notify('course_added', {'course_id': course.course_id, 'title': course.title})
         print(f"✅ Курс доданий: {course}")
 
     def get_course(self, course_id: str) -> Optional[Course]:
@@ -655,10 +591,6 @@ class CourseManager:
             course
         )
         self.enrollments[enrollment.enrollment_id] = enrollment
-        self.subject.notify('student_enrolled', {
-            'student': student.name,
-            'course': course.title
-        })
         return enrollment
 
     # ---- Розклад ----
@@ -721,10 +653,6 @@ class CourseManager:
 ╚══════════════════════════════════════════════════════════╝
         """
         return report
-
-    def get_logs(self) -> List[str]:
-        """Отримання логів"""
-        return self.log_observer.get_logs()
 
 
 # ============================================================================
@@ -843,14 +771,6 @@ def demo():
     print(f"Кількість сповіщень: {len(student1.get_notifications())}")
     for notif in student1.get_notifications():
         print(f"  {notif}")
-
-    # 12. Логи системи
-    print("\n📝 СИСТЕМНІ ЛОГИ")
-    print("-" * 70)
-    logs = manager.get_logs()
-    print(f"Всього подій: {len(logs)}")
-    for log in logs[:5]:  # Показуємо перші 5
-        print(f"  {log}")
 
     print("\n" + "=" * 70)
     print("✅ ДЕМОНСТРАЦІЯ ЗАВЕРШЕНА")
