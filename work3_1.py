@@ -1,18 +1,16 @@
+import csv
+import json
 from abc import ABC, abstractmethod
 from datetime import datetime
-import json
-import csv
-import sqlite3
-from pathlib import Path
-from typing import List, Dict, Optional, Protocol
 
 
 # ============================================================================
 # ІНТЕРФЕЙСИ (Interface Segregation Principle)
 # ============================================================================
 
-class Serializable(Protocol):
+class Serializable(ABC):
     """Інтерфейс для серіалізації"""
+
     @abstractmethod
     def to_dict(self) -> dict:
         ...
@@ -20,6 +18,7 @@ class Serializable(Protocol):
 
 class Gradable(ABC):
     """Інтерфейс для об'єктів з оцінками"""
+
     @abstractmethod
     def average_grade(self):
         pass
@@ -31,6 +30,7 @@ class Gradable(ABC):
 
 class User(ABC):
     """Абстрактний базовий клас користувача"""
+
     def __init__(self, user_id, name, email):
         self.user_id = user_id
         self.name = name
@@ -46,7 +46,7 @@ class User(ABC):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
         notification = f"[{timestamp}] {message}"
         self._notifications.append(notification)
-        print(f"📧 {self.name}: {message}")
+        print(f"Message {self.name}: {message}")
 
     def get_notifications(self):
         return self._notifications
@@ -117,17 +117,8 @@ class Instructor(User):
 
 
 class Admin(User):
-    def __init__(self, user_id, name, email):
-        super().__init__(user_id, name, email)
-        self.permissions = ['manage_users', 'manage_courses', 'view_reports']
-
     def get_role(self):
         return "Admin"
-
-    def to_dict(self):
-        data = super().to_dict()
-        data['permissions'] = self.permissions
-        return data
 
 
 class Lesson:
@@ -153,7 +144,7 @@ class Lesson:
 
 
 class Module:
-    def __init__(self, module_id, title, description=""):
+    def __init__(self, module_id, title, description=""):  # description не обов'язковий
         self.module_id = module_id
         self.title = title
         self.description = description
@@ -305,8 +296,8 @@ class Assignment:
         return f"Assignment({self.title}, due: {self.due_date})"
 
     def __str__(self):
-        status = "⚠️ Прострочено" if self.is_overdue() else "✅ Активне"
-        return f"📝 {self.title} - {status}"
+        status = "Прострочено" if self.is_overdue() else "Активне"
+        return f"{self.title} - {status}"
 
     def to_dict(self):
         return {
@@ -350,6 +341,7 @@ class Grade:
 
 class ScheduleEvent:
     """Подія в розкладі"""
+
     def __init__(self, event_id, course, title, start_time, end_time, location):
         self.event_id = event_id
         self.course = course
@@ -361,8 +353,8 @@ class ScheduleEvent:
     def get_duration(self):
         """Тривалість події в хвилинах"""
         if isinstance(self.start_time, str):
-            start = datetime.fromisoformat(self.start_time)
-            end = datetime.fromisoformat(self.end_time)
+            start = datetime.fromisoformat(self.start_time)  # YYYY-MM-DDT HH:MM:SS стандартний ISO
+            end = datetime.fromisoformat(self.end_time)  # YYYY-MM-DDT HH:MM:SS
         else:
             start = self.start_time
             end = self.end_time
@@ -372,7 +364,7 @@ class ScheduleEvent:
         return f"ScheduleEvent({self.title} at {self.start_time})"
 
     def __str__(self):
-        return f"📅 {self.title} | {self.location} | {self.get_duration()}хв"
+        return f"{self.title} | {self.location} | {self.get_duration()}хв"
 
     def to_dict(self):
         return {
@@ -391,56 +383,62 @@ class ScheduleEvent:
 
 class ExportStrategy(ABC):
     """Абстрактна стратегія експорту"""
+
     @abstractmethod
-    def export(self, data: List[dict], filepath: str):
+    def export(self, data: list[dict], filepath: str):
         pass
 
 
 class JSONExportStrategy(ExportStrategy):
     """Експорт в JSON формат"""
-    def export(self, data: List[dict], filepath: str):
+
+    def export(self, data: list[dict], filepath: str):
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"✅ Дані експортовано в JSON: {filepath}")
+        print(f"Дані експортовано в JSON: {filepath}")
 
 
 class CSVExportStrategy(ExportStrategy):
     """Експорт в CSV формат"""
-    def export(self, data: List[dict], filepath: str):
+
+    def export(self, data: list[dict], filepath: str):
         if not data:
-            print("⚠️ Немає даних для експорту")
+            print("Немає даних для експорту")
             return
 
         with open(filepath, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=data[0].keys())
             writer.writeheader()
             writer.writerows(data)
-        print(f"✅ Дані експортовано в CSV: {filepath}")
+        print(f"Дані експортовано в CSV: {filepath}")
 
 
 class ImportStrategy(ABC):
     """Абстрактна стратегія імпорту"""
+
     @abstractmethod
-    def import_data(self, filepath: str) -> List[dict]:
+    def import_data(self, filepath: str) -> list[dict]:
         pass
 
 
 class JSONImportStrategy(ImportStrategy):
     """Імпорт з JSON"""
-    def import_data(self, filepath: str) -> List[dict]:
+
+    def import_data(self, filepath: str) -> list[dict]:
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        print(f"✅ Дані імпортовано з JSON: {filepath}")
+        print(f"Дані імпортовано з JSON: {filepath}")
         return data
 
 
 class CSVImportStrategy(ImportStrategy):
     """Імпорт з CSV"""
-    def import_data(self, filepath: str) -> List[dict]:
+
+    def import_data(self, filepath: str) -> list[dict]:
         with open(filepath, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             data = list(reader)
-        print(f"✅ Дані імпортовано з CSV: {filepath}")
+        print(f"Дані імпортовано з CSV: {filepath}")
         return data
 
 
@@ -450,6 +448,7 @@ class CSVImportStrategy(ImportStrategy):
 
 class UserFactory:
     """Фабрика для створення користувачів"""
+
     @staticmethod
     def create_user(role: str, user_id: str, name: str, email: str, **kwargs) -> User:
         if role.lower() == 'student':
@@ -472,40 +471,39 @@ class UserFactory:
 
 class CourseManager:
     """Головний менеджер системи (Facade)"""
+
     def __init__(self):
-        self.users: Dict[str, User] = {}
-        self.courses: Dict[str, Course] = {}
-        self.enrollments: Dict[str, Enrollment] = {}
-        self.schedule_events: List[ScheduleEvent] = []
+        self.users: dict[str, User] = {}
+        self.courses: dict[str, Course] = {}
+        self.enrollments: dict[str, Enrollment] = {}
+        self.schedule_events: list[ScheduleEvent] = []
 
     # ---- Користувачі ----
     def add_user(self, user: User):
         self.users[user.user_id] = user
-        print(f"✅ Користувач доданий: {user}")
+        print(f"Користувач доданий: {user}")
 
-    def get_user(self, user_id: str) -> Optional[User]:
+    def get_user(self, user_id: str) -> User:
         return self.users.get(user_id)
 
-    def get_students(self) -> List[Student]:
+    def get_students(self) -> list[Student]:
         return [u for u in self.users.values() if isinstance(u, Student)]
 
-    def get_instructors(self) -> List[Instructor]:
+    def get_instructors(self) -> list[Instructor]:
         return [u for u in self.users.values() if isinstance(u, Instructor)]
 
     # ---- Курси ----
     def add_course(self, course: Course):
         self.courses[course.course_id] = course
-        print(f"✅ Курс доданий: {course}")
+        print(f"Курс доданий: {course}")
 
-    def get_course(self, course_id: str) -> Optional[Course]:
+    def get_course(self, course_id: str) -> Course:
         return self.courses.get(course_id)
 
     # ---- Реєстрація ----
     def enroll_student(self, student: Student, course: Course) -> Enrollment:
         enrollment = Enrollment(
-            f"enr_{len(self.enrollments) + 1}",
-            student,
-            course
+            f"enr_{len(self.enrollments) + 1}", student, course
         )
         self.enrollments[enrollment.enrollment_id] = enrollment
         return enrollment
@@ -513,7 +511,7 @@ class CourseManager:
     # ---- Розклад ----
     def add_schedule_event(self, event: ScheduleEvent):
         self.schedule_events.append(event)
-        print(f"✅ Подію додано: {event}")
+        print(f"Подію додано: {event}")
 
     # ---- Експорт (Strategy Pattern) ----
     def export_data(self, data_type: str, strategy: ExportStrategy, filepath: str):
@@ -525,13 +523,13 @@ class CourseManager:
         elif data_type == 'enrollments':
             data = [e.to_dict() for e in self.enrollments.values()]
         else:
-            print(f"⚠️ Невідомий тип даних: {data_type}")
+            print(f"Невідомий тип даних: {data_type}")
             return
 
         strategy.export(data, filepath)
 
     # ---- Імпорт ----
-    def import_data(self, strategy: ImportStrategy, filepath: str) -> List[dict]:
+    def import_data(self, strategy: ImportStrategy, filepath: str) -> list[dict]:
         """Універсальний імпорт даних"""
         return strategy.import_data(filepath)
 
@@ -546,28 +544,28 @@ class CourseManager:
         }
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"💾 Систему збережено: {filepath}")
+        print(f"Систему збережено: {filepath}")
 
     # ---- Звіти ----
     def generate_report(self, course_id: str) -> str:
         """Генерація звіту по курсу"""
         course = self.get_course(course_id)
         if not course:
-            return "❌ Курс не знайдено"
+            return "Курс не знайдено"
 
         enrollments = [e for e in self.enrollments.values() if e.course == course]
         avg_grades = [e.average_grade() for e in enrollments if e.average_grade() is not None]
 
         report = f"""
-╔══════════════════════════════════════════════════════════╗
-║  ЗВІТ ПО КУРСУ: {course.title:<41}║
-╠══════════════════════════════════════════════════════════╣
-║  Викладач: {course.instructor.name if course.instructor else 'N/A':<47}║
-║  Модулів: {len(course):<49}║
-║  Тривалість: {course.get_total_duration()} хв{' ':<42}║
-║  Студентів: {len(enrollments):<47}║
-║  Середній бал: {sum(avg_grades)/len(avg_grades) if avg_grades else 0:.1f}{' ':<42}║
-╚══════════════════════════════════════════════════════════╝
+
+  ЗВІТ ПО КУРСУ: {course.title:<41}
+
+  Викладач: {course.instructor.name if course.instructor else 'N/A':<47}
+  Модулів: {len(course):<49}
+  Тривалість: {course.get_total_duration()} хв{' ':<42}
+  Студентів: {len(enrollments):<47}
+  Середній бал: {sum(avg_grades) / len(avg_grades) if avg_grades else 0:.1f}{' ':<42}
+
         """
         return report
 
@@ -578,13 +576,13 @@ class CourseManager:
 
 def demo():
     print("=" * 70)
-    print("🎓 СИСТЕМА КЕРУВАННЯ НАВЧАЛЬНИМИ КУРСАМИ")
+    print(" СИСТЕМА КЕРУВАННЯ НАВЧАЛЬНИМИ КУРСАМИ")
     print("=" * 70)
 
     manager = CourseManager()
 
     # 1. Створення користувачів через Factory
-    print("\n📋 СТВОРЕННЯ КОРИСТУВАЧІВ")
+    print("\n СТВОРЕННЯ КОРИСТУВАЧІВ")
     print("-" * 70)
 
     instructor = UserFactory.create_user(
@@ -606,7 +604,7 @@ def demo():
     manager.add_user(student2)
 
     # 2. Створення курсу з модулями
-    print("\n📚 СТВОРЕННЯ КУРСУ")
+    print("\n СТВОРЕННЯ КУРСУ")
     print("-" * 70)
 
     course = Course('CS101', 'Python для початківців', 'Вступний курс', instructor)
@@ -624,14 +622,14 @@ def demo():
     manager.add_course(course)
 
     # 3. Реєстрація студентів
-    print("\n✍️ РЕЄСТРАЦІЯ СТУДЕНТІВ")
+    print("\n✍ РЕЄСТРАЦІЯ СТУДЕНТІВ")
     print("-" * 70)
 
     enrollment1 = manager.enroll_student(student1, course)
     enrollment2 = manager.enroll_student(student2, course)
 
     # 4. Завдання та оцінки
-    print("\n📝 ЗАВДАННЯ ТА ОЦІНКИ")
+    print("\n ЗАВДАННЯ ТА ОЦІНКИ")
     print("-" * 70)
 
     assignment1 = Assignment('hw1', 'Домашка 1', 'Написати програму', '2025-11-20', 100)
@@ -642,7 +640,7 @@ def demo():
     enrollment2.add_grade(grade2)
 
     # 5. Магічні методи
-    print("\n🔮 ДЕМОНСТРАЦІЯ МАГІЧНИХ МЕТОДІВ")
+    print("\n ДЕМОНСТРАЦІЯ МАГІЧНИХ МЕТОДІВ")
     print("-" * 70)
     print(f"Курс: {course}")  # __str__
     print(f"Модулів у курсі: {len(course)}")  # __len__
@@ -650,7 +648,7 @@ def demo():
     print(f"Середній бал студента 1: {enrollment1.average_grade():.1f}")
 
     # 6. Ітерація
-    print("\n📖 СТРУКТУРА КУРСУ")
+    print("\n СТРУКТУРА КУРСУ")
     print("-" * 70)
     for i, module in enumerate(course, 1):  # __iter__
         print(f"{i}. {module}")
@@ -658,7 +656,7 @@ def demo():
             print(f"   {lesson}")
 
     # 7. Розклад
-    print("\n📅 РОЗКЛАД")
+    print("\n РОЗКЛАД")
     print("-" * 70)
     event = ScheduleEvent(
         'evt1', course, 'Лекція: ООП в Python',
@@ -669,11 +667,11 @@ def demo():
     manager.add_schedule_event(event)
 
     # 8. Звіт
-    print("\n📊 ЗВІТ ПО КУРСУ")
+    print("\n ЗВІТ ПО КУРСУ")
     print(manager.generate_report('CS101'))
 
     # 9. Експорт (Strategy Pattern)
-    print("\n💾 ЕКСПОРТ ДАНИХ")
+    print("\n ЕКСПОРТ ДАНИХ")
     print("-" * 70)
     manager.export_data('students', JSONExportStrategy(), 'students.json')
     manager.export_data('students', CSVExportStrategy(), 'students.csv')
@@ -683,29 +681,15 @@ def demo():
     manager.save_to_json('system_backup.json')
 
     # 11. Сповіщення
-    print("\n📧 СПОВІЩЕННЯ СТУДЕНТА")
+    print("\n СПОВІЩЕННЯ СТУДЕНТА")
     print("-" * 70)
     print(f"Кількість сповіщень: {len(student1.get_notifications())}")
     for notif in student1.get_notifications():
         print(f"  {notif}")
 
     print("\n" + "=" * 70)
-    print("✅ ДЕМОНСТРАЦІЯ ЗАВЕРШЕНА")
+    print(" ДЕМОНСТРАЦІЯ ЗАВЕРШЕНА")
     print("=" * 70)
-
-    # Принципи SOLID
-    print("\n📌 РЕАЛІЗОВАНІ SOLID ПРИНЦИПИ:")
-    print("  ✓ SRP: Кожен клас має одну відповідальність")
-    print("  ✓ OCP: Нові стратегії експорту без зміни коду")
-    print("  ✓ LSP: Student/Instructor замінюють User")
-    print("  ✓ ISP: Розділені інтерфейси (Serializable, Notifiable, Gradable)")
-    print("  ✓ DIP: Залежності через абстракції (Factory, Strategy)")
-
-    print("\n🎨 ПАТЕРНИ ПРОЕКТУВАННЯ:")
-    print("  ✓ Factory: UserFactory для створення користувачів")
-    print("  ✓ Strategy: Різні стратегії експорту/імпорту")
-    print("  ✓ Observer: Система сповіщень та логування")
-    print("  ✓ Facade: CourseManager як єдина точка входу")
 
 
 if __name__ == "__main__":
