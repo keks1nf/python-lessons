@@ -132,7 +132,7 @@ class Lesson:
         return f"Lesson({self.title}, {self.duration_minutes}хв)"
 
     def __str__(self):
-        return f"📖 {self.title} ({self.duration_minutes} хв)"
+        return f"{self.title} ({self.duration_minutes} хв)"
 
     def to_dict(self):
         return {
@@ -326,7 +326,7 @@ class Grade:
         return f"Grade({self.assignment.title}: {self.score}/{self.max_score})"
 
     def __str__(self):
-        return f"📊 {self.assignment.title}: {self.score}/{self.max_score} ({self.get_percentage():.1f}%)"
+        return f" {self.assignment.title}: {self.score}/{self.max_score} ({self.get_percentage():.1f}%)"
 
     def to_dict(self):
         return {
@@ -379,7 +379,6 @@ class ScheduleEvent:
 
 # ============================================================================
 # Експорт/Імпорт
-# Експорт/Імпорт
 # ============================================================================
 
 class AbstractFileExporter(ABC):
@@ -415,7 +414,7 @@ class CSVExporter(AbstractFileExporter):
 
 
 class AbstractFileImporter(ABC):
-    """Абстрактна стратегія імпорту"""
+    """Абстракт.  імпорт"""
 
     @abstractmethod
     def import_data(self, filepath: str) -> list[dict]:
@@ -471,7 +470,7 @@ class UserFactory:
 # ============================================================================
 
 class CourseManager:
-    """Головний менеджер системи (Facade)"""
+    """Головний менеджер системи """
 
     def __init__(self):
         self.users: dict[str, User] = {}
@@ -514,9 +513,9 @@ class CourseManager:
         self.schedule_events.append(event)
         print(f"Подію додано: {event}")
 
-    # ---- Експорт (Strategy Pattern) ----
+    # ---- Експорт  ----
     def export_data(self, data_type: str, strategy: AbstractFileExporter, filepath: str):
-        """Універсальний експорт даних"""
+        """Експорт даних"""
         if data_type == 'students':
             data = [s.to_dict() for s in self.get_students()]
         elif data_type == 'courses':
@@ -531,7 +530,7 @@ class CourseManager:
 
     # ---- Імпорт ----
     def import_data(self, strategy: AbstractFileImporter, filepath: str) -> list[dict]:
-        """Універсальний імпорт даних"""
+        """Імпорт даних"""
         return strategy.import_data(filepath)
 
     # ---- Збереження в JSON ----
@@ -671,7 +670,7 @@ def demo():
     print("\n ЗВІТ ПО КУРСУ")
     print(manager.generate_report('CS101'))
 
-    # 9. Експорт (Strategy Pattern)
+    # 9. Експорт
     print("\n ЕКСПОРТ ДАНИХ")
     print("-" * 70)
     manager.export_data('students', JSONExporter(), 'students.json')
