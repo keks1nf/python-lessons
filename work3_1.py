@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 # ============================================================================
-# ІНТЕРФЕЙСИ (Interface Segregation Principle)
+# ІНТЕРФЕЙСИ
 # ============================================================================
 
 class Serializable(ABC):
@@ -25,7 +25,7 @@ class Gradable(ABC):
 
 
 # ============================================================================
-# БАЗОВІ КЛАСИ (з покращеннями)
+# БАЗОВІ КЛАСИ
 # ============================================================================
 
 class User(ABC):
@@ -378,10 +378,10 @@ class ScheduleEvent:
 
 
 # ============================================================================
-# ПАТЕРН STRATEGY - Експорт/Імпорт (Open/Closed Principle)
+# Експорт/Імпорт
 # ============================================================================
 
-class ExportStrategy(ABC):
+class AbstractFileExporter(ABC):
     """Абстрактна стратегія експорту"""
 
     @abstractmethod
@@ -389,7 +389,7 @@ class ExportStrategy(ABC):
         pass
 
 
-class JSONExportStrategy(ExportStrategy):
+class JSONExporter(AbstractFileExporter):
     """Експорт в JSON формат"""
 
     def export(self, data: list[dict], filepath: str):
@@ -398,7 +398,7 @@ class JSONExportStrategy(ExportStrategy):
         print(f"Дані експортовано в JSON: {filepath}")
 
 
-class CSVExportStrategy(ExportStrategy):
+class CSVExporter(AbstractFileExporter):
     """Експорт в CSV формат"""
 
     def export(self, data: list[dict], filepath: str):
@@ -413,7 +413,7 @@ class CSVExportStrategy(ExportStrategy):
         print(f"Дані експортовано в CSV: {filepath}")
 
 
-class ImportStrategy(ABC):
+class AbstractFileImporter(ABC):
     """Абстрактна стратегія імпорту"""
 
     @abstractmethod
@@ -421,7 +421,7 @@ class ImportStrategy(ABC):
         pass
 
 
-class JSONImportStrategy(ImportStrategy):
+class JSONImporter(AbstractFileImporter):
     """Імпорт з JSON"""
 
     def import_data(self, filepath: str) -> list[dict]:
@@ -431,7 +431,7 @@ class JSONImportStrategy(ImportStrategy):
         return data
 
 
-class CSVImportStrategy(ImportStrategy):
+class CSVImporter(AbstractFileImporter):
     """Імпорт з CSV"""
 
     def import_data(self, filepath: str) -> list[dict]:
@@ -443,7 +443,7 @@ class CSVImportStrategy(ImportStrategy):
 
 
 # ============================================================================
-# ПАТЕРН FACTORY - Створення об'єктів (Dependency Inversion)
+# Створення об'єктів
 # ============================================================================
 
 class UserFactory:
@@ -466,7 +466,7 @@ class UserFactory:
 
 
 # ============================================================================
-# ГОЛОВНИЙ МЕНЕДЖЕР (Facade Pattern)
+# ГОЛОВНИЙ МЕНЕДЖЕР
 # ============================================================================
 
 class CourseManager:
@@ -514,7 +514,7 @@ class CourseManager:
         print(f"Подію додано: {event}")
 
     # ---- Експорт (Strategy Pattern) ----
-    def export_data(self, data_type: str, strategy: ExportStrategy, filepath: str):
+    def export_data(self, data_type: str, strategy: AbstractFileExporter, filepath: str):
         """Універсальний експорт даних"""
         if data_type == 'students':
             data = [s.to_dict() for s in self.get_students()]
@@ -529,7 +529,7 @@ class CourseManager:
         strategy.export(data, filepath)
 
     # ---- Імпорт ----
-    def import_data(self, strategy: ImportStrategy, filepath: str) -> list[dict]:
+    def import_data(self, strategy: AbstractFileImporter, filepath: str) -> list[dict]:
         """Універсальний імпорт даних"""
         return strategy.import_data(filepath)
 
@@ -571,7 +571,7 @@ class CourseManager:
 
 
 # ============================================================================
-# ДЕМОНСТРАЦІЯ
+# ДЕМО
 # ============================================================================
 
 def demo():
@@ -673,9 +673,9 @@ def demo():
     # 9. Експорт (Strategy Pattern)
     print("\n ЕКСПОРТ ДАНИХ")
     print("-" * 70)
-    manager.export_data('students', JSONExportStrategy(), 'students.json')
-    manager.export_data('students', CSVExportStrategy(), 'students.csv')
-    manager.export_data('courses', JSONExportStrategy(), 'courses.json')
+    manager.export_data('students', JSONExporter(), 'students.json')
+    manager.export_data('students', CSVExporter(), 'students.csv')
+    manager.export_data('courses', JSONExporter(), 'courses.json')
 
     # 10. Збереження системи
     manager.save_to_json('system_backup.json')
