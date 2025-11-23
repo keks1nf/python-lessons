@@ -4,16 +4,15 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 
-# ============================================================================
-# ІНТЕРФЕЙСИ (Interface Segregation Principle)
-# ============================================================================
+# ІНТЕРФЕЙСИ
+
 
 class Serializable(ABC):
     """Інтерфейс для серіалізації"""
 
     @abstractmethod
     def to_dict(self) -> dict:
-        ...
+        pass
 
 
 class Gradable(ABC):
@@ -24,9 +23,8 @@ class Gradable(ABC):
         pass
 
 
-# ============================================================================
-# БАЗОВІ КЛАСИ (з покращеннями)
-# ============================================================================
+# БАЗОВІ КЛАСИ
+
 
 class User(ABC):
     """Абстрактний базовий клас користувача"""
@@ -132,7 +130,7 @@ class Lesson:
         return f"Lesson({self.title}, {self.duration_minutes}хв)"
 
     def __str__(self):
-        return f"📖 {self.title} ({self.duration_minutes} хв)"
+        return f" {self.title} ({self.duration_minutes} хв)"
 
     def to_dict(self):
         return {
@@ -326,7 +324,7 @@ class Grade:
         return f"Grade({self.assignment.title}: {self.score}/{self.max_score})"
 
     def __str__(self):
-        return f"📊 {self.assignment.title}: {self.score}/{self.max_score} ({self.get_percentage():.1f}%)"
+        return f"{self.assignment.title}: {self.score}/{self.max_score} ({self.get_percentage():.1f}%)"
 
     def to_dict(self):
         return {
@@ -377,9 +375,8 @@ class ScheduleEvent:
         }
 
 
-# ============================================================================
-# ПАТЕРН STRATEGY - Експорт/Імпорт (Open/Closed Principle)
-# ============================================================================
+# ПАТЕРН STRATEGY - Експорт/Імпорт
+
 
 class ExportStrategy(ABC):
     """Абстрактна стратегія експорту"""
@@ -442,9 +439,8 @@ class CSVImportStrategy(ImportStrategy):
         return data
 
 
-# ============================================================================
-# ПАТЕРН FACTORY - Створення об'єктів (Dependency Inversion)
-# ============================================================================
+# ПАТЕРН FACTORY - Створення об'єктів
+
 
 class UserFactory:
     """Фабрика для створення користувачів"""
@@ -465,9 +461,8 @@ class UserFactory:
             raise ValueError(f"Невідома роль: {role}")
 
 
-# ============================================================================
-# ГОЛОВНИЙ МЕНЕДЖЕР (Facade Pattern)
-# ============================================================================
+# ГОЛОВНИЙ МЕНЕДЖЕР
+
 
 class CourseManager:
     """Головний менеджер системи (Facade)"""
@@ -513,7 +508,7 @@ class CourseManager:
         self.schedule_events.append(event)
         print(f"Подію додано: {event}")
 
-    # ---- Експорт (Strategy Pattern) ----
+    # ---- Експорт  ----
     def export_data(self, data_type: str, strategy: ExportStrategy, filepath: str):
         """Універсальний експорт даних"""
         if data_type == 'students':
@@ -570,9 +565,8 @@ class CourseManager:
         return report
 
 
-# ============================================================================
 # ДЕМОНСТРАЦІЯ
-# ============================================================================
+
 
 def demo():
     print("=" * 70)
