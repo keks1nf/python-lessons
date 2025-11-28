@@ -66,7 +66,7 @@ class BusinessCar(Vehicle):
         return f"[{self.vehicle_class()} клас] {self._brand} {self._model} ({self._year}) - {self._price_per_day} грн/день"
 
 
-# === Клас сервісу (ІНКАПСУЛЯЦІЯ) ===
+# ===  Сервіс (ІНКАПСУЛЯЦІЯ) ===
 class RentalService:
     def __init__(self):
         self.__vehicles = []  # Приватний список усіх авто
