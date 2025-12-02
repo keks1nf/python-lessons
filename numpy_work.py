@@ -43,3 +43,34 @@ print("Очищені зарплати:", clean)
 print("mean_clean:", mean_clean)
 print("median_clean:", median_clean)
 print("percent_below_25:", percent_below_25)
+
+# Приклад матриці оцінок (кожен рядок — студент, кожен стовпець — предмет)
+grades = np.array([
+    [90, 85, 78, 92],
+    [55, 60, 48, 70],
+    [100, 95, 98, 97],
+    [40, 55, 60, 50],
+    [75, 80, 72, 68]
+])
+
+# Середня оцінка по кожному студенту
+avg_students = np.mean(grades, axis=1)
+
+# Середня оцінка по кожному предмету
+avg_subjects = np.mean(grades, axis=0)
+
+# Студенти, у яких хоча б одна оцінка < 50
+low_score_students = np.where(np.any(grades < 50, axis=1))[0]
+
+# Студент з найвищим середнім балом
+best_student_index = np.argmax(avg_students)
+best_student_score = avg_students[best_student_index]
+
+print("Середня оцінка по кожному студенту:", avg_students)
+print("Середня оцінка по кожному предмету:", avg_subjects)
+print("Студенти з оцінками < 50:", low_score_students)
+print(f"Найкращий студент: #{best_student_index} із середнім балом {best_student_score}")
+
+# У двовимірному масиві (матриці):
+# axis=0 — діяти по стовпцях (вниз)
+# axis=1 — діяти по рядках (впоперек)
