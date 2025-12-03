@@ -6,101 +6,97 @@ from bs4 import BeautifulSoup
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-URL = "https://www.zoe.com.ua/%d0%bd%d0%be%d0%b2%d0%b8%d0%bd%d0%b8/"
+URL = "https://www.zoe.com.ua/%d0%b3%d1%80%d0%b0%d1%84%d1%96%d0%ba%d0%b8-%d0%bf%d0%be%d0%b3%d0%be%d0%b4%d0%b8%d0%bd%d0%bd%d0%b8%d1%85-%d1%81%d1%82%d0%b0%d0%b1%d1%96%d0%bb%d1%96%d0%b7%d0%b0%d1%86%d1%96%d0%b9%d0%bd%d0%b8%d1%85/"
 
 
-# ======================== CLEANER ====================================
+def clean_time(time_string: str) -> str:
+    """Виправляє помилки у часі типу '07;30', '7:3', '24:00'."""
+    s = time_string.replace(";", ":")
+    s = re.sub(r'\s*[-—–]\s*', " – ", s)
 
-def clean_time_range(text: str) -> str:
-    """Очищення помилок форматування часу."""
-    text = text.replace(";", ":")
-    text = re.sub(r'\s*[-—–]\s*', ' – ', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-
-    def fix_time(t):
-        if re.match(r'^\d:\d{2}$', t):
-            t = "0" + t
-        if re.match(r'^\d{2}:\d$', t):
-            t = t[:-1] + "0" + t[-1]
-        if re.match(r'^\d$', t):
-            t = f"0{t}:00"
-        if re.match(r'^\d{2}$', t):
-            t = f"{t}:00"
+    def normalize_time(t):
+        # Якщо t = 7:3 → 07:03
+        parts = t.split(":")
+        if len(parts) == 2:
+            h, m = parts
+            h = h.zfill(2)
+            m = m.zfill(2)
+            return f"{h}:{m}"
+        # Якщо t = 7 → 07:00
+        if t.isdigit():
+            return t.zfill(2) + ":00"
         return t
 
-    def repl(m):
-        return fix_time(m.group(0))
+    s = re.sub(
+        r'\d{1,2}:\d{1,2}|\d{1,2}',
+        lambda m: normalize_time(m.group(0)),
+        s
+    )
 
-    text = re.sub(r'\d{1,2}:\d{1,2}|\d{1,2}', repl, text)
-    text = text.replace("24:00", "00:00")
-
-    return text
+    s = s.replace("24:00", "00:00")
+    return s
 
 
-# ======================== PARSER ====================================
-
-def fetch_latest_gpv():
+def parse_page():
     resp = requests.get(URL, verify=False)
     soup = BeautifulSoup(resp.text, "html.parser")
 
-    posts = soup.select("article")
-
-    if not posts:
-        return {"error": "Не знайдено новин"}
-
-    # шукаємо першу новину, яка містить ОПУБЛІКОВАНИЙ ГПВ
-    gpv_post = None
-    for post in posts:
-        if "ГПВ" in post.text or "Графік" in post.text or "оновлено" in post.text.lower():
-            gpv_post = post
-            break
-
-    if gpv_post is None:
-        return {"error": "Не знайдено новини з ГПВ"}
-
-    link = gpv_post.select_one("a").get("href")
-    return parse_gpv_page(link)
-
-
-def parse_gpv_page(url):
-    resp = requests.get(url, verify=False)
-    soup = BeautifulSoup(resp.text, "html.parser")
-
-    # беремо тільки контент поста
     article = soup.select_one("article")
-    if not article:
-        return {"error": "Стаття не знайдена"}
-
     text = article.get_text("\n", strip=True)
 
-    # шукаємо дату тільки в перших 300 символах — де зазвичай пишуть “ГПВ оновлено…”
-    header_part = text[:300]
+    blocks = []
 
-    # шукаємо дати
-    date_pattern = r"[0-3]?\d\.[01]\d\.\d{4}"
-    dates = re.findall(date_pattern, header_part)
+    # === ЗНАЙТИ ВСІ БЛОКИ ГПВ ===
+    # Заголовки-блоки:
+    # "ПО ЗАПОРІЗЬКІЙ ОБЛАСТІ ДІЯТИМУТЬ ГПВ ..."
+    # "ОНОВЛЕНО ГПВ НА ..."
+    block_headers = re.finditer(
+        r"(ПО ЗАПОРІЗЬКІЙ ОБЛАСТІ ДІЯТИМУТЬ ГПВ.*?|ОНОВЛЕНО ГПВ НА [^\n]+)",
+        text,
+        re.IGNORECASE
+    )
 
-    # якщо знайдено дивну дату типу 2023 — ігноруємо
-    dates = [d for d in dates if not d.endswith("2023")]
+    header_positions = [m.start() for m in block_headers]
 
-    # fallback: якщо дат нема → None
-    if not dates:
-        dates = ["не знайдено"]
+    # Додати кінець тексту для останнього блоку
+    header_positions.append(len(text))
 
-    # ================= РОЗКЛАД ПО ЧЕРГАХ ======================
-    queue_pattern = r"(\d\.\d)\s*:\s*([^\n]+)"
-    raw_blocks = re.findall(queue_pattern, text)
+    headers = re.findall(
+        r"(ПО ЗАПОРІЗЬКІЙ ОБЛАСТІ ДІЯТИМУТЬ ГПВ.*?|ОНОВЛЕНО ГПВ НА [^\n]+)",
+        text,
+        re.IGNORECASE
+    )
 
-    queues = {sub: clean_time_range(times) for sub, times in raw_blocks}
+    # === ВИТЯГТИ КОЖЕН БЛОК ===
+    for i in range(len(headers)):
+        header = headers[i]
+        start = header_positions[i]
+        end = header_positions[i + 1]
 
-    return {
-        "url": url,
-        "dates": dates,
-        "queues": queues,
-    }
+        block_text = text[start:end]
+
+        # Витягнути дату
+        date_match = re.search(r"\d{1,2}\.\d{1,2}\.\d{4}", block_text)
+        date = date_match.group(0) if date_match else None
+
+        # Витягнути черги
+        queues = dict(re.findall(r"(\d\.\d)\s*:\s*([^\n]+)", block_text))
+
+        # Очистити часи
+        for k in queues:
+            queues[k] = clean_time(queues[k])
+
+        blocks.append({
+            "header": header.strip(),
+            "date": date,
+            "queues": queues
+        })
+
+    return blocks
 
 
-# ======================== RUN ====================================
-
-result = fetch_latest_gpv()
-print(result)
+# === RUN ===
+parsed = parse_page()
+for block in parsed:
+    print(block)
+    print("=" * 50)
