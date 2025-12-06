@@ -44,7 +44,7 @@ print("mean_clean:", mean_clean)
 print("median_clean:", median_clean)
 print("percent_below_25:", percent_below_25)
 
-# Приклад матриці оцінок (кожен рядок — студент, кожен стовпець — предмет)
+# Приклад матриці оцінок (рядок — студент, стовпець — предмет)
 grades = np.array([
     [90, 85, 78, 92],
     [55, 60, 48, 70],

@@ -10,7 +10,7 @@ URL = "https://www.zoe.com.ua/%d0%b3%d1%80%d0%b0%d1%84%d1%96%d0%ba%d0%b8-%d0%bf%
 
 
 def clean_time(time_string: str) -> str:
-    """Виправляє помилки у часі типу '07;30', '7:3', '24:00'."""
+    """Виправляє помилки у часі."""
     s = time_string.replace(";", ":")
     s = re.sub(r'\s*[-—–]\s*', " – ", s)
 
@@ -50,13 +50,17 @@ def parse_page():
     # Заголовки-блоки:
     # "ПО ЗАПОРІЗЬКІЙ ОБЛАСТІ ДІЯТИМУТЬ ГПВ ..."
     # "ОНОВЛЕНО ГПВ НА ..."
-    block_headers = re.finditer(
-        r"(ПО ЗАПОРІЗЬКІЙ ОБЛАСТІ ДІЯТИМУТЬ ГПВ.*?|ОНОВЛЕНО ГПВ НА [^\n]+)",
-        text,
+    block_headers = re.compile(
+        r"(?s)(?:"
+        r"(\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+[а-яіїєґА-ЯІЇЄҐ]+(?:\s+\d{4})?)\s+ПО\s+ЗАПОРІЗЬКІЙ\s+ОБЛАСТІ\s+ДІЯТИМУТЬ\s+ГПВ(.*?)(?=\n\n|\r\n\r\n|$)"
+        r"|"
+        r"ОНОВЛЕНО\s+ГПВ\s+НА\s+([^\n]+)"
+        r")",
         re.IGNORECASE
     )
 
-    header_positions = [m.start() for m in block_headers]
+    matches = list(block_headers.finditer(text))
+    header_positions = [m.start() for m in matches]
 
     # Додати кінець тексту для останнього блоку
     header_positions.append(len(text))
