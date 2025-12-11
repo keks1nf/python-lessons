@@ -100,6 +100,7 @@ data3 = [
 
 dataframe_1 = pd.DataFrame(data1)
 dataframe_2 = pd.DataFrame(data2)
+
 dataframe_3 = pd.DataFrame(data3, columns=['Name', 'Age', 'Salary'])
 
 print(dataframe_3)
