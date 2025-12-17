@@ -343,7 +343,7 @@ def calculate_new_price(row):
 df_bookings['total_price'] = df_bookings.apply(calculate_new_price, axis=1)
 
 # 4. Збереження оновленого файлу
-UPDATED_FILE_NAME = 'bookings.csv'
+UPDATED_FILE_NAME = '../rental_house/bookings.csv'
 df_bookings.to_csv(UPDATED_FILE_NAME, index=False)
 
 # Виведення результату
