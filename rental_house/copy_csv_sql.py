@@ -49,7 +49,7 @@ def import_all_csv_to_sqlite():
                     print("   (Проведено обробку: Забезпечено коректний порядок стовпців для capex)")
 
                 # 3. Запис даних у SQL-таблицю
-                df.to_sql(table_name, conn, if_exists='replace', index=False)
+                df.to_sql(table_name, conn, if_exists='append', index=False)
 
                 print(f"✅ Успішно імпортовано {len(df)} рядків у таблицю '{table_name}'.")
 

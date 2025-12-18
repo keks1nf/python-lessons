@@ -15,16 +15,19 @@ except locale.Error:
     except locale.Error:
         print("Помилка. Форматування чисел може бути некоректним.")
 
+##todo вынести в отдельный класс и вызывать это
 DATABASE_NAME = 'rental_db.sqlite'
 DATE_FORMAT = '%Y-%m-%d'
 
 
 # --- ДОПОМІЖНІ ФУНКЦІЇ ---
 
+
+##todo вынести в отдельный класс и вызывать это, вместе с DATABASE_NAME
 def get_db_connection():
     return sqlite3.connect(DATABASE_NAME)
 
-
+##todo вынести в отдельный класс и вызывать это, вместе с DATABASE_NAME
 def get_current_value(conn, table, column, pk_value, pk_column):
     """отримує поточне значення стовпця для відображення в меню оновлення"""
     cursor = conn.cursor()
@@ -70,7 +73,7 @@ def check_customer_exists(customer_id):
     finally:
         conn.close()
 
-
+#todo убрать логику if table_name == 'capex' and 'is_depreciable' in column_names:
 def get_all_records(table_name):
     """виводить всі записи з вказаної таблиці."""
     conn = get_db_connection()
@@ -129,7 +132,7 @@ def calculate_occupancy_rate_single_unit(start_date, end_date):
         cursor.execute("""
             SELECT check_in, check_out 
             FROM bookings 
-            WHERE check_out > ? AND check_in < ?
+            WHERE check_out > ? AND check_in <= ?
         """, (start_date, end_date))
         bookings = cursor.fetchall()
 
@@ -199,7 +202,7 @@ def calculate_financial_summary_full(start_date, end_date):
     cursor = conn.cursor()
 
     if isinstance(start_date, str):
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        start_date = datetime.strptime(start_date, '%Y-%m-%d') # вынести в константу '%Y-%m-%d'
     if isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
@@ -213,7 +216,7 @@ def calculate_financial_summary_full(start_date, end_date):
 
     total_esv = 0
     current_date = start_date
-
+    #todo расчет есв вынести в отдельную функцию
     while current_date <= end_date:
         if current_date.year == 2024 and current_date.month < 4:
             min_zp = 7100

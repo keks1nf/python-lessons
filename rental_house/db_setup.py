@@ -56,6 +56,7 @@ def setup_database():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS calendar  (
+    calendar_id INTEGER PRIMARY KEY AUTOINCREMENT,
     date DATE NOT NULL,
     is_weekend BOOLEAN,
     is_high_season BOOLEAN
@@ -64,6 +65,7 @@ def setup_database():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS pricing  (
+    pricing_id INTEGER PRIMARY KEY AUTOINCREMENT,
     season VARCHAR(50),
     date_from DATE,
     date_to DATE,
