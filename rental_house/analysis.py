@@ -331,6 +331,8 @@ def report_opex_by_category(start_date, end_date):
 def display_monthly_occupancy():
     """завантаженість у % по місяцях"""
     try:
+        year_input = int(input('Введіть рік для формування звіту (наприклад, 2024): '))
+
         df = pd.read_csv('bookings.csv')
 
         # datetime
@@ -349,15 +351,15 @@ def display_monthly_occupancy():
         nights_df = pd.DataFrame({'date': all_nights})
 
         # групуємо за місяцями
-        monthly_counts = nights_df[nights_df['date'].dt.year == 2024]['date'].dt.month.value_counts().sort_index()
+        monthly_counts = nights_df[nights_df['date'].dt.year == year_input]['date'].dt.month.value_counts().sort_index()
 
-        print(f"\n--- ЗВІТ ЗАВАНТАЖЕНОСТІ НА 2024 РІК ---")
+        print(f"\n--- ЗВІТ ЗАВАНТАЖЕНОСТІ НА {year_input} РІК ---")
         print(f"{'Місяць':<12} | {'Зайнято':<8} | {'Всього':<7} | {'Завантаженість'}")
         print("-" * 55)
 
         for month in range(1, 13):
             #  днів у місяці
-            days_in_month = calendar.monthrange(2024, month)[1]
+            days_in_month = calendar.monthrange(year_input, month)[1]
             #  ночей заброньовано
             booked_nights = monthly_counts.get(month, 0)
             # % завантаженості
@@ -380,6 +382,7 @@ def display_full_seasonality_report():
 
         # збір даних за 12 місяців
         monthly_data = {m: {'revenue': 0, 'nights': 0, 'opex': 0} for m in range(1, 13)}
+        report_year = int(input("Введіть рік, для формування звіту (наприклад, 2024):  "))
 
         # дохід та ночі по місяцях
         for _, row in df.iterrows():
@@ -387,7 +390,7 @@ def display_full_seasonality_report():
             revenue_per_night = row['total_price'] / len(nights_range)
 
             for day in nights_range:
-                if day.year == 2024:
+                if day.year == report_year:
                     monthly_data[day.month]['nights'] += 1
                     monthly_data[day.month]['revenue'] += revenue_per_night
 
@@ -398,11 +401,11 @@ def display_full_seasonality_report():
         conn.close()
 
         for _, row in opex_df.iterrows():
-            if row['opex_date'].year == 2024:
+            if row['opex_date'].year == report_year:
                 monthly_data[row['opex_date'].month]['opex'] += row['amount']
 
         # 3. звіт
-        print(f"\n{' ЗВІТ ПО СЕЗОННОСТІ 2024':^70}")
+        print(f"\n{f' ЗВІТ ПО СЕЗОННОСТІ ЗА {report_year} РІК':^70}")
         print("-" * 85)
         print(f"{'Місяць':<12} | {'Дохід':<12} | {'Витрати*':<12} | {'Прибуток':<12} | {'Завант.'}")
         print("-" * 85)
@@ -417,7 +420,7 @@ def display_full_seasonality_report():
             exp = monthly_data[m]['opex'] + taxes
             profit = rev - exp
 
-            days_in_month = calendar.monthrange(2024, m)[1]
+            days_in_month = calendar.monthrange(report_year, m)[1]
             occ = (monthly_data[m]['nights'] / days_in_month) * 100
 
             print(f"{ukr_months[m - 1]:<12} | {rev:>10.0f} | {exp:>10.0f} | {profit:>10.0f} | {occ:>6.1f}%")
@@ -427,3 +430,63 @@ def display_full_seasonality_report():
 
     except Exception as e:
         print(f"Помилка створення звіту: {e}")
+
+
+def display_available_days_report():
+    """Звіт про вільні дні по місяцях"""
+    try:
+        year_input = input('Введіть рік для аналізу вільних днів (наприклад, 2024): ')
+        report_year = int(year_input)
+
+        df = pd.read_csv('bookings.csv')
+        df['check_in'] = pd.to_datetime(df['check_in'])
+        df['check_out'] = pd.to_datetime(df['check_out'])
+
+        # всі заброньовані ночі в набір (set) для пошуку
+        booked_nights = set()
+        for _, row in df.iterrows():
+            nights = pd.date_range(start=row['check_in'], end=row['check_out'] - pd.Timedelta(days=1))
+            for night in nights:
+                if night.year == report_year:
+                    booked_nights.add(night.date())
+
+        # 3. звіт
+        print(f"\n{'━' * 60}")
+        print(f"{f'🗓️ ЗВІТ ПРО ВІЛЬНІ ДНІ ЗА {report_year} РІК':^60}")
+        print(f"{'━' * 60}")
+        print(f"{'Місяць':<15} | {'Всього днів':<12} | {'Вільні дні':<12} | {'Вільні %'}")
+        print("-" * 60)
+
+        ukr_months = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
+                      "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"]
+
+        total_available_in_year = 0
+
+        for m in range(1, 13):
+            days_in_month = calendar.monthrange(report_year, m)[1]
+            free_days_list = []
+
+            for d in range(1, days_in_month + 1):
+                current_date = datetime(report_year, m, d).date()
+                if current_date not in booked_nights:
+                    free_days_list.append(d)
+
+            free_count = len(free_days_list)
+            total_available_in_year += free_count
+            free_percent = (free_count / days_in_month) * 100
+
+            # Формуємо рядок з номерами днів (якщо їх небагато)
+            days_str = ", ".join(map(str, free_days_list[:10])) + ("..." if free_count > 10 else "")
+
+            print(f"{ukr_months[m - 1]:<15} | {days_in_month:>11} | {free_count:>11} | {free_percent:>7.1f}%")
+            if free_count > 0:
+                print(f"   ∟ Вільні числа: {days_str}")
+
+        print("-" * 60)
+        print(f"ЗАГАЛОМ ВІЛЬНИХ НОЧЕЙ ЗА РІК: {total_available_in_year}")
+        print(f"{'━' * 60}")
+
+    except ValueError:
+        print("❌ Помилка: Введіть рік числом.")
+    except Exception as e:
+        print(f"❌ Помилка при розрахунку вільних днів: {e}")
